@@ -1,0 +1,79 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
+
+group 'kr.jclab.spring'
+version '1.0.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    implementation 'org.springframework.boot:spring-boot-starter-websocket:2.1.4.RELEASE'
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    pkg {
+        repo = 'spring.boot'
+        name = 'spring-vue-stomp-operator'
+        userOrg = 'jc-lab'
+        licenses = ['Apache-2.0']
+        publicDownloadNumbers = true
+        vcsUrl = 'https://github.com/jc-lab/vue-stomp-operator.git'
+
+        githubRepo = 'jc-lab/vue-stomp-operator'
+
+        version {
+            version = version
+
+            gpg {
+                sign = true
+            }
+        }
+    }
+}
+
+publish {
+    repository {
+        maven {
+            name = 'bintray'
+            url = 'https://api.bintray.com/maven/jc-lab/spring.boot/spring-vue-stomp-operator/;publish=1'
+
+            credentials {
+                username = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+                password = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+            }
+        }
+    }
+    defaults {
+        // Tell the Artifactory Plugin which artifacts should be published to Artifactory.
+        publications('mavenJava')
+    }
+}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = group
+            artifactId = rootProject.name
+            version = version
+
+            from components.java
+        }
+    }
+}
